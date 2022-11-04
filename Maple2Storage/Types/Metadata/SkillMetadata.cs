@@ -34,6 +34,12 @@ public class SkillMetadata
     public SkillRangeType RangeType;
     [XmlElement(Order = 14)]
     public int[] GroupIDs;
+    [XmlElement(Order = 15)]
+    public string Name;
+    [XmlElement(Order = 16)]
+    public Dictionary<int, string> Descriptions;
+    [XmlElement(Order = 17)]
+    public string Icon;
 
     public SkillMetadata() { }
 
@@ -44,7 +50,7 @@ public class SkillMetadata
     }
 
     public SkillMetadata(int id, List<SkillLevel> skillLevels, string state, byte damageType, SkillType type, SkillSubType subType, byte element,
-        byte superArmor, bool isSpRecovery, SkillRangeType rangeType, int[] groupIds)
+        byte superArmor, bool isSpRecovery, SkillRangeType rangeType, int[] groupIds, string skillIcon)
     {
         SkillId = id;
         SkillLevels = skillLevels;
@@ -57,6 +63,7 @@ public class SkillMetadata
         IsSpRecovery = isSpRecovery;
         RangeType = rangeType;
         GroupIDs = groupIds;
+        Icon = skillIcon;
     }
 
     public override string ToString()

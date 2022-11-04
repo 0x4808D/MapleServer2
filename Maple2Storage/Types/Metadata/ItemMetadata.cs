@@ -54,6 +54,8 @@ public class ItemMetadata
     public List<ItemBreakReward> BreakRewards = new();
     [XmlElement(Order = 26)]
     public ItemAdditionalEffectMetadata AdditionalEffect;
+    [XmlElement(Order = 27)]
+    public ItemDescriptionMetadata Descriptions;
 }
 
 [XmlType]
@@ -180,6 +182,10 @@ public class ItemPropertyMetadata
     public int SocketDataId;
     [XmlElement(Order = 13)]
     public ItemSellMetadata Sell;
+    [XmlElement(Order = 14)]
+    public string SlotIcon;
+    [XmlElement(Order = 15)]
+    public string SlotIconCustom;
 }
 
 [XmlType]
@@ -313,6 +319,18 @@ public class ItemBreakReward
         return $"Id: {Id}, Amount: {Count}";
     }
 }
+
+[XmlType]
+public class ItemDescriptionMetadata
+{
+    [XmlElement(Order = 1)]
+    public string MainDesc;
+    [XmlElement(Order = 2)]
+    public string GuideDesc;
+    [XmlElement(Order = 3)]
+    public string TooltipDesc;
+}
+
 
 [XmlType]
 public class OpenItemBox

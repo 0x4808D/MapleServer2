@@ -18,6 +18,7 @@ public class QuestParser : Exporter<List<QuestMetadata>>
         List<QuestMetadata> quests = new();
         Filter.Load(Resources.XmlReader, "NA", "Live");
         Maple2.File.Parser.QuestParser questParser = new(Resources.XmlReader);
+        Dictionary<int, string> questDescriptions = new();
         foreach ((int id, string name, QuestData data) in questParser.Parse())
         {
             QuestMetadata metadata = new()
@@ -102,9 +103,12 @@ public class QuestParser : Exporter<List<QuestMetadata>>
                 Count = x.count,
                 Rank = (byte) x.rank
             }).ToList());
-
+            questDescriptions.TryGetValue(metadata.Basic.Id, out metadata.Description);
             quests.Add(metadata);
         }
+
+        quests.Add(metadata);
+    }
 
 
         return quests;

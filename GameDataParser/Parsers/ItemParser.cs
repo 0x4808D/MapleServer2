@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml;
 using GameDataParser.Files;
 using GameDataParser.Files.MetadataExporter;
@@ -20,6 +21,9 @@ public class ItemParser : Exporter<List<ItemMetadata>>
     {
         // Item breaking ingredients
         Dictionary<int, List<ItemBreakReward>> rewards = ParseItemBreakingIngredients();
+
+        // Descriptions
+        Dictionary<int, ItemDescriptionMetadata> descriptions = ParseItemDescriptions();
 
         // Item rarity
         Dictionary<int, int> rarities = ParseItemRarities();
@@ -119,7 +123,9 @@ public class ItemParser : Exporter<List<ItemMetadata>>
                     {
                         SellPrice = property.sell.price.ToList(),
                         SellPriceCustom = property.sell.priceCustom.ToList(),
-                    }
+                    },
+                    SlotIcon = property.slotIcon,
+                    SlotIconCustom = property.slotIconCustom,
                 },
                 Customize = new()
                 {
@@ -160,6 +166,12 @@ public class ItemParser : Exporter<List<ItemMetadata>>
                 {
                     Id = additionalEffect.id,
                     Level = additionalEffect.level
+                },
+                Descriptions = new()
+                {
+                    MainDesc = String.Empty,
+                    GuideDesc = String.Empty,
+                    TooltipDesc = String.Empty,
                 }
             };
 
@@ -228,6 +240,11 @@ public class ItemParser : Exporter<List<ItemMetadata>>
             if (rewards.ContainsKey(id))
             {
                 metadata.BreakRewards = rewards[id];
+            }
+
+            if (descriptions.ContainsKey(id))
+            {
+                metadata.Descriptions = descriptions[id];
             }
 
             // Item rarities
@@ -587,6 +604,39 @@ public class ItemParser : Exporter<List<ItemMetadata>>
         }
 
         return rewards;
+    }
+
+    private Dictionary<int, ItemDescriptionMetadata> ParseItemDescriptions()
+    {
+        Dictionary<int, ItemDescriptionMetadata> descriptions = new();
+
+        PackFileEntry file = Resources.XmlReader.Files.FirstOrDefault(x => x.Name.Contains("string/en/koritemdescription.xml"));
+        if (file is null)
+        {
+            throw new FileNotFoundException("File not found: string/en/koritemdescription.xml");
+        }
+
+        XmlDocument document = Resources.XmlReader.GetXmlDocument(file);
+        XmlNodeList nodes = document.SelectNodes("/ms2/key");
+        foreach (XmlNode node in nodes)
+        {
+            int id = int.Parse(node.Attributes["id"].Value);
+            if (id < 4)
+            {
+                continue;
+            }
+
+            if (descriptions.ContainsKey(id))
+            {
+                continue;
+            }
+
+            string tooltip = System.Security.SecurityElement.Escape(node.Attributes["tooltipDescription"]?.Value ?? string.Empty);
+            string guide = System.Security.SecurityElement.Escape(node.Attributes["guideDescription"]?.Value ?? string.Empty);
+            string main = System.Security.SecurityElement.Escape(node.Attributes["mainDescription"]?.Value ?? string.Empty);
+            descriptions.Add(id, new() { TooltipDesc = tooltip, GuideDesc = guide, MainDesc = main });
+        }
+        return descriptions;
     }
 
     private static void ParseHair(Slot slot, ItemMetadata metadata)

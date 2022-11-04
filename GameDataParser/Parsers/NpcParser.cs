@@ -145,6 +145,7 @@ public class NpcParser : Exporter<List<NpcMetadata>>
             metadata.NpcMetadataBasic.Kind = (NpcKind) ushort.Parse(npcBasicNode.Attributes["kind"]!.Value);
             metadata.NpcMetadataBasic.HpBar = byte.Parse(npcBasicNode.Attributes["hpBar"]!.Value);
             metadata.NpcMetadataBasic.MinimapIconName = npcBasicNode.Attributes["minimapIconName"]?.Value ?? "";
+            metadata.NpcMetadataBasic.Portrait = npcBasicNode.Attributes["portrait"]?.Value ?? String.Empty;
 
             if (statsCollection is not null)
             {

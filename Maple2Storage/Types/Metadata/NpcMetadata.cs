@@ -108,6 +108,8 @@ public class NpcMetadataBasic
     public string Race; // (plane|animal|"|spirit|fairy|combine|bug|devil)
     [XmlElement(Order = 20)]
     public string MinimapIconName;
+    [XmlElement(Order = 21)]
+    public string Portrait;
 
     public override string ToString()
     {

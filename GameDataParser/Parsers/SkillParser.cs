@@ -18,6 +18,8 @@ public class SkillParser : Exporter<List<SkillMetadata>>
     protected override List<SkillMetadata> Parse()
     {
         List<SkillMetadata> skillList = new();
+        Dictionary<int, string> skillNames = new();
+        Dictionary<int, Dictionary<int, string>> skillDescriptions = new();
         foreach (PackFileEntry entry in Resources.XmlReader.Files)
         {
             // Parsing Skills
@@ -44,6 +46,7 @@ public class SkillParser : Exporter<List<SkillMetadata>>
                 byte skillSuperArmor = byte.Parse(stateAttr?.Attributes?["superArmor"]?.Value ?? "0");
                 bool skillRecovery = int.Parse(kinds?.Attributes?["spRecoverySkill"]?.Value ?? "0") == 1;
                 int[] groupIds = kinds?.Attributes?["groupIDs"]?.Value.SplitAndParseToInt(',').ToArray() ?? Array.Empty<int>();
+                string skillIcon = ui.Attributes["icon"]?.Value ?? string.Empty;
 
                 List<SkillLevel> skillLevels = new();
                 foreach (XmlNode level in levels)
@@ -114,7 +117,7 @@ public class SkillParser : Exporter<List<SkillMetadata>>
                 }
 
                 skillList.Add(new(skillId, skillLevels, skillState, skillAttackType, skillType, skillSubType, skillElement, skillSuperArmor, skillRecovery,
-                    skillRangeType, groupIds));
+                    skillRangeType, groupIds, skillIcon));
             }
 
             // Parsing SubSkills
@@ -196,6 +199,59 @@ public class SkillParser : Exporter<List<SkillMetadata>>
 
                 skillLevel.SkillAdditionalData = ParseSkillData(levelNode);
             }
+        }
+
+        // Parsing skill names
+        foreach (PackFileEntry entry in Resources.XmlReader.Files)
+        {
+            if (!entry.Name.StartsWith("string/en/skillname"))
+            {
+                continue;
+            }
+
+            XmlDocument document = Resources.XmlReader.GetXmlDocument(entry);
+            foreach (XmlNode skill in document.DocumentElement.ChildNodes)
+            {
+                int id = int.Parse(skill.Attributes["id"].Value);
+                string name = skill.Attributes["name"]?.Value ?? String.Empty;
+                skillNames[id] = name;
+            }
+        }
+
+        // Parsing skill descriptions
+        foreach (PackFileEntry entry in Resources.XmlReader.Files)
+        {
+            if (!entry.Name.StartsWith("string/en/korskilldescription"))
+            {
+                continue;
+            }
+
+            XmlDocument document = Resources.XmlReader.GetXmlDocument(entry);
+            foreach (XmlNode skill in document.DocumentElement.ChildNodes)
+            {
+                int id = int.Parse(skill.Attributes["id"].Value);
+                int level = int.Parse(skill.Attributes["level"].Value);
+                string description = System.Security.SecurityElement.Escape(skill.Attributes["uiDescription"]?.Value ?? String.Empty);
+
+                Dictionary<int, string> descriptions;
+                skillDescriptions.TryGetValue(id, out descriptions);
+                if (descriptions is null)
+                {
+                    skillDescriptions[id] = new();
+                }
+
+                if (skillDescriptions[id].ContainsKey(level))
+                {
+                    continue;
+                }
+                skillDescriptions[id].Add(level, description);
+            }
+        }
+
+        foreach (SkillMetadata skill in skillList)
+        {
+            skillNames.TryGetValue(skill.SkillId, out skill.Name);
+            skillDescriptions.TryGetValue(skill.SkillId, out skill.Descriptions);
         }
 
         return skillList;

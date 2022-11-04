@@ -32,6 +32,8 @@ public class QuestMetadata
     public QuestDispatch Dispatch = new();
     [XmlElement(Order = 13)]
     public string Name = "";
+    [XmlElement(Order = 14)]
+    public string Description = "";
 }
 
 [XmlType]

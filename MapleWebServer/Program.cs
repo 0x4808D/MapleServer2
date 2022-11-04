@@ -1,5 +1,6 @@
 ﻿using Maple2Storage.Tools;
 using Maple2Storage.Types;
+using MapleServer2.Tools;
 using MapleWebServer.Endpoints;
 using Serilog;
 using Serilog.Templates;
@@ -39,6 +40,14 @@ app.MapGet("/guildmark/ms2/01/{guildId}/{guid}.png", GuildEndpoint.GetEmblem);
 app.MapGet("/guildmark/ms2/01/{guildId}/banner/{guid}.png", GuildEndpoint.GetBanner);
 app.MapGet("/data/profiles/avatar/{characterId}/{hash}.png", ProfileEndpoint.Get);
 app.MapGet("/banner/ms2/01/{bannerId}/{fileHash}.m2u", BannerEndpoint.Get);
+
+await MetadataHelper.InitializeAll();
+
+app.MapGet("/api/items", CodexItemsEndpoint.Get);
+app.MapGet("/api/npcs", CodexNPCEndpoint.Get);
+app.MapGet("/api/maps", CodexMapsEndpoint.Get);
+app.MapGet("/api/quests", CodexQuestsEndpoint.Get);
+app.MapGet("/api/skills", CodexSkillsEndpoint.Get);
 
 app.MapPost("/urq.aspx", UploadEndpoint.Post);
 

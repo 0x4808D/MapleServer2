@@ -23,6 +23,8 @@ public static class SkillMetadataStorage
 
     public static SkillMetadata? GetSkill(int id) => Skills.GetValueOrDefault(id);
 
+    public static Dictionary<int, SkillMetadata> GetAllSkills() => Skills;
+
     public static List<int> GetEmotes() => Skills.Values.Where(x => x.SkillId / 100000 == 902).Select(x => x.SkillId).ToList();
 
     // Get a List of Skills corresponding to the Job
